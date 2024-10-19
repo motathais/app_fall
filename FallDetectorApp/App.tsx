@@ -6,7 +6,7 @@ import * as Location from 'expo-location';
 export default function App() {
   const [data, setData] = useState({ x: 0, y: 0, z: 0 });
   const [quedas, setQuedas] = useState<AccelerometerMeasurement[]>([]);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState<Location.LocationObject|null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -15,6 +15,7 @@ export default function App() {
       if (Math.abs(accelerometerData.x) >1.1 ||
         Math.abs(accelerometerData.y) ||
         Math.abs(accelerometerData.z) > 1.1) {
+          posicaoAtual();
         setQuedas((quedas) => [...quedas, accelerometerData]);
           }
           setData(accelerometerData);
@@ -33,12 +34,16 @@ export default function App() {
     })();
   }, []);
   
-  
+  const posicaoAtual = async () => {
+    const local = await Location.getCurrentPositionAsync({})
+    setLocation(local);
+  }
   
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{errorMsg ? errorMsg : 'Permissão concedida'}</Text>
       <Text style={styles.text}>Detector de Quedas</Text>
+      <Text style={styles.text}>  Latitude: {location?.coords.latitude} Longitude: {location?.coords.longitude}  </Text>
       <Text style={styles.text}> x:{(data.x).toFixed(2)} y:{(data.y).toFixed(2)} z:{(data.z).toFixed(2)} </Text>
     </View>
   );
